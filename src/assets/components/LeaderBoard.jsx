@@ -1,4 +1,7 @@
-export const Leaderboard = ({ players, title }) =>{
+// Leaderboard.jsx
+import React from "react";
+
+export const Leaderboard = ({ players, title }) => {
   return (
     <div className="leaderboard-column">
       <h3>{title}</h3>
@@ -8,7 +11,13 @@ export const Leaderboard = ({ players, title }) =>{
         players.map((player, index) => (
           <div className="leaderboard-card" key={index}>
             <span className="rank">
-              {index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `#${index + 1}`}
+              {index === 0
+                ? "🥇"
+                : index === 1
+                ? "🥈"
+                : index === 2
+                ? "🥉"
+                : `#${index + 1}`}
             </span>
             <div className="player-info">
               <span className="player-name">{player.name}</span>
@@ -21,4 +30,4 @@ export const Leaderboard = ({ players, title }) =>{
       )}
     </div>
   );
-}
+};

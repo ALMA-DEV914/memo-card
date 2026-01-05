@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card } from "./assets/components/Card";
 import { Header } from "./assets/components/header";
-import { Leaderboard } from "./assets/components/Leaderboard";
+import { Leaderboard } from "./assets/components/LeaderBoard";
 
 const cardValues = [
   "🥹","😍","🥰","😘",
