@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card } from "./assets/components/Card";
 import { Header } from "./assets/components/header";
+import { Leaderboard } from "./assets/components/Leaderboard";
 
 const cardValues = [
   "🥹","😍","🥰","😘",
@@ -16,8 +17,9 @@ export default function App() {
   const [score, setScore] = useState(0);
   const [gameWon, setGameWon] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
+  const [players, setPlayers] = useState([]);
+  const [playerName, setPlayerName] = useState("");
 
-  // Initialize / Reset
   const initializeCards = () => {
     const shuffledCards = [...cardValues]
       .sort(() => Math.random() - 0.5)
@@ -34,7 +36,6 @@ export default function App() {
     setGameWon(false);
   };
 
-  // Handle card click
   const handleCardClick = (clickedCard) => {
     if (isChecking) return;
     if (clickedCard.isFlipped || clickedCard.isMatched) return;
@@ -49,7 +50,6 @@ export default function App() {
     setFlippedCards(prev => [...prev, clickedCard]);
   };
 
-  // Check match
   useEffect(() => {
     if (flippedCards.length !== 2) return;
     setIsChecking(true);
@@ -87,30 +87,64 @@ export default function App() {
     }
   }, [flippedCards]);
 
-  // Auto-start
   useEffect(() => {
     initializeCards();
   }, []);
+
+  // Update leaderboard when player wins
+  useEffect(() => {
+    if (gameWon && playerName.trim() !== "") {
+      const newPlayer = { name: playerName, score, moves };
+      setPlayers(prev => {
+        const updated = [...prev, newPlayer]
+          .sort((a, b) => b.score - a.score || a.moves - b.moves)
+          .slice(0, 10);
+        return updated;
+      });
+    }
+  }, [gameWon]);
 
   return (
     <div className="App">
       <Header score={score} moves={moves} />
 
-      <button className="start-game-button" onClick={initializeCards}>
-        Start Game
-      </button>
+      <div className="game-wrapper">
+  {/* Left Leaderboard (Top 1-5) */}
+  <div className="leaderboard-side">
+    <Leaderboard players={players.slice(0, 5)} title="Top 1-5" />
+  </div>
 
-      {gameWon && (
-        <div className="win-message">
-          🎉 You won in {moves} moves!
-        </div>
-      )}
+  {/* Card grid in the center */}
+  <div className="card-area">
+    <div className="player-input">
+      <input
+        type="text"
+        placeholder="Enter your name"
+        value={playerName}
+        onChange={(e) => setPlayerName(e.target.value)}
+      />
+    </div>
 
-      <div className="card-grid">
-        {cards.map(card => (
-          <Card key={card.id} card={card} onClick={handleCardClick} />
-        ))}
-      </div>
+    <button className="start-game-button" onClick={initializeCards}>
+      Start Game
+    </button>
+
+    {gameWon && (
+      <div className="win-message">🎉 You won in {moves} moves!</div>
+    )}
+
+    <div className="card-grid">
+      {cards.map(card => (
+        <Card key={card.id} card={card} onClick={handleCardClick} />
+      ))}
+    </div>
+  </div>
+
+  {/* Right Leaderboard (Top 6-10) */}
+  <div className="leaderboard-side">
+    <Leaderboard players={players.slice(5, 10)} title="Top 6-10" />
+  </div>
+</div>
     </div>
   );
 }
