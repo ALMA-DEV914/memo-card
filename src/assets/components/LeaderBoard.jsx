@@ -1,4 +1,4 @@
-export function Leaderboard({ players, title }) {
+export const Leaderboard = ({ players, title }) =>{
   return (
     <div className="leaderboard-column">
       <h3>{title}</h3>
