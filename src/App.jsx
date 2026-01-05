@@ -10,6 +10,7 @@ const cardValues = [
   "😋","😛","😝","😜",
 ];
 
+
 export default function App() {
   const [cards, setCards] = useState([]);
   const [flippedCards, setFlippedCards] = useState([]);
@@ -19,6 +20,17 @@ export default function App() {
   const [isChecking, setIsChecking] = useState(false);
   const [players, setPlayers] = useState([]);
   const [playerName, setPlayerName] = useState("");
+
+  // Load leaderboard from localStorage
+  useEffect(() => {
+    const savedPlayers = JSON.parse(localStorage.getItem("players")) || [];
+    setPlayers(savedPlayers);
+  }, []);
+
+  // Save leaderboard to localStorage
+  useEffect(() => {
+    localStorage.setItem("players", JSON.stringify(players));
+  }, [players]);
 
   const initializeCards = () => {
     const shuffledCards = [...cardValues]
@@ -37,19 +49,17 @@ export default function App() {
   };
 
   const handleCardClick = (clickedCard) => {
-    if (isChecking) return;
-    if (clickedCard.isFlipped || clickedCard.isMatched) return;
-    if (flippedCards.length === 2) return;
+    if (isChecking || clickedCard.isFlipped || clickedCard.isMatched || flippedCards.length === 2) return;
 
     setCards(prev =>
       prev.map(card =>
         card.id === clickedCard.id ? { ...card, isFlipped: true } : card
       )
     );
-
     setFlippedCards(prev => [...prev, clickedCard]);
   };
 
+  // Check for matches
   useEffect(() => {
     if (flippedCards.length !== 2) return;
     setIsChecking(true);
@@ -87,20 +97,20 @@ export default function App() {
     }
   }, [flippedCards]);
 
+  // Auto-start game on mount
   useEffect(() => {
     initializeCards();
   }, []);
 
-  // Update leaderboard when player wins
+  // Update leaderboard when a player wins
   useEffect(() => {
     if (gameWon && playerName.trim() !== "") {
       const newPlayer = { name: playerName, score, moves };
-      setPlayers(prev => {
-        const updated = [...prev, newPlayer]
+      setPlayers(prev =>
+        [...prev, newPlayer]
           .sort((a, b) => b.score - a.score || a.moves - b.moves)
-          .slice(0, 10);
-        return updated;
-      });
+          .slice(0, 10)
+      );
     }
   }, [gameWon]);
 
@@ -109,42 +119,44 @@ export default function App() {
       <Header score={score} moves={moves} />
 
       <div className="game-wrapper">
-  {/* Left Leaderboard (Top 1-5) */}
-  <div className="leaderboard-side">
-    <Leaderboard players={players.slice(0, 5)} title="Top 1-5" />
-  </div>
+        {/* Left leaderboard (top 1-5) */}
+        <div className="leaderboard-side">
+          <Leaderboard players={players.slice(0, 5)} title="Top 1-5" />
+        </div>
 
-  {/* Card grid in the center */}
-  <div className="card-area">
-    <div className="player-input">
-      <input
-        type="text"
-        placeholder="Enter your name"
-        value={playerName}
-        onChange={(e) => setPlayerName(e.target.value)}
-      />
-    </div>
+        {/* Game area */}
+        <div className="card-area">
+          <div className="player-input">
+            <input
+              type="text"
+              placeholder="Enter your name"
+              value={playerName}
+              onChange={(e) => setPlayerName(e.target.value)}
+            />
+          </div>
 
-    <button className="start-game-button" onClick={initializeCards}>
-      Start Game
-    </button>
+          <button className="start-game-button" onClick={initializeCards}>
+            Start Game
+          </button>
 
-    {gameWon && (
-      <div className="win-message">🎉 You won in {moves} moves!</div>
-    )}
+          {gameWon && (
+            <div className="win-message">
+              🎉 You won in {moves} moves!
+            </div>
+          )}
 
-    <div className="card-grid">
-      {cards.map(card => (
-        <Card key={card.id} card={card} onClick={handleCardClick} />
-      ))}
-    </div>
-  </div>
+          <div className="card-grid">
+            {cards.map(card => (
+              <Card key={card.id} card={card} onClick={handleCardClick} />
+            ))}
+          </div>
+        </div>
 
-  {/* Right Leaderboard (Top 6-10) */}
-  <div className="leaderboard-side">
-    <Leaderboard players={players.slice(5, 10)} title="Top 6-10" />
-  </div>
-</div>
+        {/* Right leaderboard (top 6-10) */}
+        <div className="leaderboard-side">
+          <Leaderboard players={players.slice(5, 10)} title="Top 6-10" />
+        </div>
+      </div>
     </div>
   );
 }

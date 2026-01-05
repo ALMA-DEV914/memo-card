@@ -199,6 +199,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin: 20px;
 }
 
 .leaderboard-column {
@@ -270,12 +271,21 @@ body {
   .leaderboard-side {
     width: 100%;
     margin-bottom: 10px;
+    
   }
 
   .card-grid {
     grid-template-columns: repeat(3, 80px);
   }
 }
+.leaderboard-card .rank {
+  color: #ff5722;
+}
+
+.leaderboard-card .rank:nth-child(1) {
+  color: gold; /* optional for medal color */
+}
+
 
 @media (max-width: 600px) {
   .card-grid {

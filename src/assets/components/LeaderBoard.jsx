@@ -7,7 +7,9 @@ export function Leaderboard({ players, title }) {
       ) : (
         players.map((player, index) => (
           <div className="leaderboard-card" key={index}>
-            <span className="rank">#{index + 1}</span>
+            <span className="rank">
+              {index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `#${index + 1}`}
+            </span>
             <div className="player-info">
               <span className="player-name">{player.name}</span>
               <span className="player-score">
